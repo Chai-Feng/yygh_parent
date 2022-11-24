@@ -1,0 +1,4 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://192.168.206.127:27017/test  #指定了mongodb中的数据库为test

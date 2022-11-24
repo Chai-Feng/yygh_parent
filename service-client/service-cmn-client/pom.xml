@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.alex.yygh</groupId>
+        <artifactId>service-client</artifactId>
+        <version>1.0</version>
+
+    </parent>
+    <groupId>com.alex.yygh</groupId>
+    <artifactId>service-cmn-client</artifactId>
+    <version>1.0</version>
+    <name>service-cmn-client</name>
+    <description>service-cmn-client</description>
+    <packaging>jar</packaging>
+
+
+</project>

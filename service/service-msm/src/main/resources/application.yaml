@@ -1,0 +1,48 @@
+server:
+  port: 8204
+
+spring:
+  application:
+    name: service-msm
+
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+  redis:
+    host: 192.168.206.129
+    database: 0
+    timeout: 1800000
+    lettuce:
+      pool:
+        max-active: 20
+        max-wait: -1
+        max-idle: 5
+        min-idle: 0
+
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+
+
+
+#配置消息队列
+  rabbitmq:
+    host: 192.168.206.117
+    username: root
+    password: 1017
+    port: 5672
+
+aliyun:
+  sms:
+    accessKeyId: LTAI5tGe48zURe2yMvHY5DCS
+    accessSecret: StEzwd7slTgLX6TReBTaevVYhE845L
+    regionId: default
+    enable: true
+
+
+
+
