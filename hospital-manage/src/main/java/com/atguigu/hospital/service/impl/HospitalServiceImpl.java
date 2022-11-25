@@ -80,6 +80,7 @@ public class HospitalServiceImpl implements HospitalService {
         int availableNumber = schedule.getAvailableNumber().intValue() - 1;
         if(availableNumber > 0) {
             schedule.setAvailableNumber(availableNumber);
+            //这里没有修改更新时间
             hospitalMapper.updateById(schedule);
 
             //记录预约记录

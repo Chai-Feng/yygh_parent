@@ -2,6 +2,7 @@ package com.alex.yygh.hospclient.hosp;
 
 import com.alex.yygh.vo.hosp.ScheduleOrderVo;
 import com.alex.yygh.vo.order.SignInfoVo;
+import org.joda.time.DateTime;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,5 +31,12 @@ public interface HospitalFeignClient {
     @GetMapping("/api/hosp/hospital/inner/getSignInfoVo/{hoscode}")
     SignInfoVo getSignInfoVo(@PathVariable("hoscode") String hoscode);
 
+    /**
+     * 返回周几
+     * @param dateTime
+     * @return
+     */
+    @GetMapping("/api/hosp/hospital/inner/DayofWeek/{dateTime}")
+    String getDayofWeek(@PathVariable("dateTime")DateTime dateTime);
 
 }

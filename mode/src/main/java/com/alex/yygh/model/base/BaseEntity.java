@@ -1,9 +1,6 @@
 package com.alex.yygh.model.base;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -27,6 +24,7 @@ public class BaseEntity implements Serializable {
 
     @ApiModelProperty(value = "更新时间")
     @TableField("update_time")
+     //@Version 乐观锁 老师的代码里没加 使用时，需要配置乐观锁插件
     private Date updateTime;
 
     @ApiModelProperty(value = "逻辑删除(1:已删除，0:未删除)")

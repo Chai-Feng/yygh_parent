@@ -40,10 +40,19 @@ public class HospitalReceiver {
     ))
     public void receiver(OrderMqVo orderMqVo, Message message, Channel channel) throws IOException {
         //下单成功更新预约数
-        Schedule schedule = scheduleService.getById(orderMqVo.getScheduleId());
-        schedule.setReservedNumber(orderMqVo.getReservedNumber());
-        schedule.setAvailableNumber(orderMqVo.getAvailableNumber());
-        scheduleService.update(schedule);
+
+        if(null!=orderMqVo.getAvailableNumber()) {
+            Schedule schedule = scheduleService.getById(orderMqVo.getScheduleId());
+            schedule.setReservedNumber(orderMqVo.getReservedNumber());
+            schedule.setAvailableNumber(orderMqVo.getAvailableNumber());
+            scheduleService.update(schedule);
+
+        }else{
+            //取消预约更新预约数
+            Schedule schedule = scheduleService.getById(orderMqVo.getScheduleId());
+            schedule.setAvailableNumber(schedule.getAvailableNumber()+1);
+            scheduleService.update(schedule);
+        }
         //发送rabbit消息
         MsmVo msmVo = orderMqVo.getMsmVo();
         if(null != msmVo) {

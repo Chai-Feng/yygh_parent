@@ -11,6 +11,7 @@ import com.alex.yygh.rabbitutil.constant.MqConst;
 import com.alex.yygh.rabbitutil.service.RabbitService;
 import com.alex.yygh.serviceorder.mapper.OrderInfoMapper;
 import com.alex.yygh.serviceorder.service.OrderInfoService;
+import com.alex.yygh.serviceorder.service.WeixinService;
 import com.alex.yygh.serviceuserclient.user.PatientFeignClient;
 import com.alex.yygh.vo.hosp.ScheduleOrderVo;
 import com.alex.yygh.vo.msm.MsmVo;
@@ -50,6 +51,9 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper,OrderInfo>
 
     @Autowired
     private RabbitService rabbitService;
+
+    @Autowired
+    private WeixinService weixinService;
 
     //下单
     @Override
@@ -264,5 +268,68 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper,OrderInfo>
 
         result.put("patient",patient);
         return  result;
+    }
+
+
+    //取消订单
+    @Override
+    public Boolean cancelOrder(Long orderId) {
+
+        System.out.println("OrderInfoService cancelOrder "+orderId+" "+orderId.getClass().getName());
+        OrderInfo orderInfo = this.getById(orderId);
+        //当前时间大于退号时间，不能取消预约
+        DateTime quitTime = new DateTime(orderInfo.getQuitTime());
+
+        if(quitTime.isBeforeNow()){
+            throw new YyghException(ResultCodeEnum.CANCEL_ORDER_NO) ;// 不能取消预约
+        }
+        SignInfoVo signInfoVo = hospitalFeignClient.getSignInfoVo(orderInfo.getHoscode());
+        if(null==signInfoVo){
+            throw new YyghException(ResultCodeEnum.PARAM_ERROR); //签名异常
+        }
+
+
+        Map<String, Object> reqMap = new HashMap<>();
+        reqMap.put("hoscode",orderInfo.getHoscode());
+        reqMap.put("hosRecordId",orderInfo.getHosRecordId());
+        reqMap.put("timestamp", HttpRequestHelper.getTimestamp());
+        String sign = HttpRequestHelper.getSign(reqMap, signInfoVo.getSignKey());
+        reqMap.put("sign", sign);
+
+        JSONObject result = HttpRequestHelper.sendRequest(reqMap, signInfoVo.getApiUrl()+"/order/updateCancelStatus");
+
+        if(result.getInteger("code") != 200) {
+            throw new YyghException(result.getString("message"), ResultCodeEnum.FAIL.getCode());
+        } else {
+            //退号，订单是否支付
+            if(orderInfo.getOrderStatus().intValue()==OrderStatusEnum.PAID.getStatus().intValue()){
+                Boolean isRefund = weixinService.refund(orderId);
+                if(!isRefund) {
+                    throw new YyghException(ResultCodeEnum.CANCEL_ORDER_FAIL);
+                }
+            }
+            //更改订单状态
+           orderInfo.setOrderStatus(OrderStatusEnum.CANCLE.getStatus()); //取消预约
+            // 发送mq信息更新预约数 我们与下单成功更新预约数使用相同的mq信息，不设置可预约数与剩余预约数，接收端可预约数减1即可
+            this.updateById(orderInfo);
+            OrderMqVo orderMqVo = new OrderMqVo();
+            orderMqVo.setScheduleId(orderInfo.getScheduleId());
+            //短信提示
+            MsmVo msmVo = new MsmVo();
+            msmVo.setPhone(orderInfo.getPatientPhone());
+            msmVo.setTemplateCode("SMS_154950909");
+            String reserveDate = new DateTime(orderInfo.getReserveDate()).toString("yyyy-MM-dd") + (orderInfo.getReserveTime()==0 ? "上午": "下午");
+            Map<String,Object> param = new HashMap<String,Object>(){{
+                put("title", orderInfo.getHosname()+"|"+orderInfo.getDepname()+"|"+orderInfo.getTitle());
+                put("reserveDate", reserveDate);
+                put("name", orderInfo.getPatientName());
+                put("code","999999");
+            }};
+            msmVo.setParam(param);
+            orderMqVo.setMsmVo(msmVo);
+            rabbitService.sendMessage(MqConst.EXCHANGE_DIRECT_ORDER, MqConst.ROUTING_ORDER, orderMqVo);
+        }
+        return true;
+
     }
 }

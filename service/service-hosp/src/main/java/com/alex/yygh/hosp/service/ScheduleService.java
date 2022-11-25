@@ -3,6 +3,7 @@ package com.alex.yygh.hosp.service;
 import com.alex.yygh.model.hosp.Schedule;
 import com.alex.yygh.vo.hosp.ScheduleOrderVo;
 import com.alex.yygh.vo.hosp.ScheduleQueryVo;
+import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -75,4 +76,10 @@ public interface ScheduleService {
      */
     void update(Schedule schedule);
 
+    /**
+     * 获取周几
+     * @param dateTime
+     * @return
+     */
+    String getDayOfWeek(DateTime dateTime);
 }

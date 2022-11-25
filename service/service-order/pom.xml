@@ -38,6 +38,15 @@
             <artifactId>service-user-client</artifactId>
             <version>1.0</version>
         </dependency>
+
+        <!--微信支付依赖-->
+        <dependency>
+            <groupId>com.github.wxpay</groupId>
+            <artifactId>wxpay-sdk</artifactId>
+            <version>0.0.3</version>
+        </dependency>
+
+
     </dependencies>
 
 

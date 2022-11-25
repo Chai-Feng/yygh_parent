@@ -218,11 +218,12 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     /**
      * 根据日期获取周几数据
+     * 测试远程调用
      *
      * @param dateTime
      * @return
      */
-    private String getDayOfWeek(DateTime dateTime) {
+    public String getDayOfWeek(DateTime dateTime) {
         String dayOfWeek = "";
         switch (dateTime.getDayOfWeek()) {
             case DateTimeConstants.SUNDAY:
@@ -500,6 +501,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public void update(Schedule schedule) {
+        //更新时间
         schedule.setUpdateTime(new Date());
         //主键一致就是更新
         scheduleRepository.save(schedule);

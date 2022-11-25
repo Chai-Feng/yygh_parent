@@ -13,6 +13,7 @@ import com.alex.yygh.vo.order.SignInfoVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -157,6 +158,12 @@ public class HospitalApiController {
         return hospitalSetService.getSignInfoVo(hoscode);
     }
 
-
+    @ApiOperation(value = "获取日期对应的周几")
+    @GetMapping("inner/DayofWeek/{dateTime}")
+    public String getDayofWeek(
+            @ApiParam(name = "dateTime", value = "周几", required = true)
+            @PathVariable("dateTime") DateTime dateTime) {
+        return scheduleService.getDayOfWeek(dateTime);
+    }
 
 }

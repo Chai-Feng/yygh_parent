@@ -63,9 +63,22 @@ public class OrderController {
     public Result getOrderInfo(
             @ApiParam(name = "orderId", value = "订单id", required = true)
             @PathVariable Long orderId) {
-        System.out.println("根据订单Id获取订单详情 orderId ="+orderId);
+        System.out.println("根据订单Id获取订单详情 orderId ="+orderId+" ---"+orderId.getClass().getName());
         Map<String,Object> result= orderInfoService.show(orderId);
         return Result.ok(result);
     }
 
+
+
+    @ApiOperation(value = "取消预约")
+    @GetMapping("auth/cancelOrder/{orderId}")
+    public Result cancelOrder11(
+            @ApiParam(name = "orderId", value = "订单id", required = true)
+            @PathVariable("orderId") String orderId) {
+
+        System.out.println("OrderInfoController cancelOrder11 "+orderId+" "+orderId.getClass().getName());
+        long orderIdLong = Long.parseLong(orderId);
+        Boolean isCancel = orderInfoService.cancelOrder(orderIdLong);
+        return Result.ok(isCancel);
+    }
 }
