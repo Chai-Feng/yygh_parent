@@ -38,8 +38,8 @@ spring:
 
 aliyun:
   sms:
-    accessKeyId: LTAI5tGe48zURe2yMvHY5DCS
-    accessSecret: StEzwd7slTgLX6TReBTaevVYhE845L
+    accessKeyId:
+    accessSecret: 
     regionId: default
     enable: true
 
