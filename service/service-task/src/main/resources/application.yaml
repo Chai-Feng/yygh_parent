@@ -1,0 +1,24 @@
+server:
+  port: 8207
+
+spring:
+  application:
+    name: service-task
+
+  profiles:
+    active: dev
+
+
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.2.17:8848
+
+
+    #  rabbitMq
+  rabbitmq:
+    host: 192.168.206.117
+    port: 5672
+    username: root
+    password: 1017

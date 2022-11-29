@@ -8,6 +8,9 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,5 +93,42 @@ class MongodbApplicationTests {
     }
 
 
+    @Test
+    public void testStringformat(){
+        String fileName="test";
+        String path = "D:\\file\\xml\\" + fileName + ".xml";
+        System.out.println(path);
+    }
 
+    @Test
+    public  void createFile()
+    {
+        FileOutputStream fos = null;
+        try {
+            String xml="hello word";
+            String fileName="test";
+            String path = "D:\\file\\xml\\" + fileName + ".xml";
+
+            File file = new File(path);
+            byte[] buff = new byte[512];
+            buff = xml.getBytes();
+            int length = buff.length;
+            fos = new FileOutputStream(file);
+            fos.write(buff, 0, length);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                fos.close();
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
 }
+
+
+

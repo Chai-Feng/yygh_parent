@@ -65,3 +65,7 @@ weixin:
     partnerKey: T6m9iK73b0kn9g5v426MKfHQH7X8rKwb
 
   cert: E:\projectIDEA\yygh_parent\service\service-order\src\main\java\com\alex\yygh\serviceorder\cert\apiclient_cert.p12
+
+
+mybatis-plus:
+  mapper-locations: classpath:com/alex/yygh/serviceorder/mapper/xml/*.xml

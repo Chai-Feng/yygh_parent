@@ -15,9 +15,7 @@ import com.alex.yygh.serviceorder.service.WeixinService;
 import com.alex.yygh.serviceuserclient.user.PatientFeignClient;
 import com.alex.yygh.vo.hosp.ScheduleOrderVo;
 import com.alex.yygh.vo.msm.MsmVo;
-import com.alex.yygh.vo.order.OrderMqVo;
-import com.alex.yygh.vo.order.OrderQueryVo;
-import com.alex.yygh.vo.order.SignInfoVo;
+import com.alex.yygh.vo.order.*;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -29,9 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -71,11 +68,11 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper,OrderInfo>
 
 
         //当前时间不可以预约(start 挂号开始时间  end 挂号结束时间)
-        if(new DateTime(scheduleOrderVo.getStartTime()).isAfterNow() ||
-            new DateTime(scheduleOrderVo.getEndTime()).isBeforeNow()){
-            //当前时间不可以预约
-            throw new YyghException(ResultCodeEnum.TIME_NO);
-        }
+//        if(new DateTime(scheduleOrderVo.getStartTime()).isAfterNow() ||
+//            new DateTime(scheduleOrderVo.getEndTime()).isBeforeNow()){
+//            //当前时间不可以预约
+//            throw new YyghException(ResultCodeEnum.TIME_NO);
+//        }
         //获取当前医院的签名
         SignInfoVo signInfoVo = hospitalFeignClient.getSignInfoVo(scheduleOrderVo.getHoscode());
         if(null ==signInfoVo){
@@ -280,9 +277,9 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper,OrderInfo>
         //当前时间大于退号时间，不能取消预约
         DateTime quitTime = new DateTime(orderInfo.getQuitTime());
 
-        if(quitTime.isBeforeNow()){
-            throw new YyghException(ResultCodeEnum.CANCEL_ORDER_NO) ;// 不能取消预约
-        }
+//        if(quitTime.isBeforeNow()){
+//            throw new YyghException(ResultCodeEnum.CANCEL_ORDER_NO) ;// 不能取消预约
+//        }
         SignInfoVo signInfoVo = hospitalFeignClient.getSignInfoVo(orderInfo.getHoscode());
         if(null==signInfoVo){
             throw new YyghException(ResultCodeEnum.PARAM_ERROR); //签名异常
@@ -332,4 +329,67 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper,OrderInfo>
         return true;
 
     }
+
+
+    //就医提醒
+    @Override
+    public void patientTips() {
+
+        //定时任务消息触发此方法 Mq Receiver收到定时任务消息，调用此方法，组包消息体 通知阿里云发短信
+
+        //找到与本日期相同的单号
+        QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<OrderInfo>().eq("reserve_date", new DateTime().toString("yyyy-MM-dd"));
+
+       // OrderInfo orderInfo = baseMapper.selectOne(queryWrapper);
+        List<OrderInfo> list = baseMapper.selectList(queryWrapper);
+        if(null==list){
+           throw new YyghException("当日无预约",ResultCodeEnum.PARAM_ERROR.getCode());
+       }
+
+        //组包信息 phone templateCode param
+
+        for(OrderInfo orderInfo:list){
+            MsmVo msmVo = new MsmVo();
+            msmVo.setPhone(orderInfo.getPatientPhone());
+            msmVo.setTemplateCode("SMS_154950909");
+            Map<String,Object> param = new HashMap<String,Object>(){{
+                put("title", orderInfo.getHosname()+"|"+orderInfo.getDepname()+"|"+orderInfo.getTitle());
+                String reserveDate = new DateTime(orderInfo.getReserveDate()).toString("yyyy-MM-dd")+(orderInfo.getReserveTime()==0?"上午":"下午");
+
+                put("reserveDate", reserveDate);
+                put("name", orderInfo.getPatientName());
+                put("code","777777"); //提醒就诊短信内容
+            }};
+            msmVo.setParam(param);
+            rabbitService.sendMessage(MqConst.EXCHANGE_DIRECT_MSM,MqConst.ROUTING_MSM_ITEM,msmVo);
+        }
+    }
+
+    /**
+     * 订单统计
+     */
+    @Override
+    public Map<String, Object> getCountMap(OrderCountQueryVo orderCountQueryVo) {
+        Map<String, Object> map = new HashMap<>();
+
+        System.out.println("查询条件 "+orderCountQueryVo);
+        List<OrderCountVo> orderCountVoList
+                = baseMapper.selectOrderCount(orderCountQueryVo);
+
+        System.out.println("Mapperxml 查询结果");
+        //日期列表
+        List<String> dateList
+                =orderCountVoList.stream().map(OrderCountVo::getReserveDate).collect(Collectors.toList());
+        //统计列表
+        List<Integer> countList
+                =orderCountVoList.stream().map(OrderCountVo::getCount).collect(Collectors.toList());
+        map.put("dateList", dateList);
+        map.put("countList", countList);
+        return map;
+    }
+
+
+
+
+
 }

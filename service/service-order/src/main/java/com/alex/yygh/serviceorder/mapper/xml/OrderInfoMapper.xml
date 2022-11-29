@@ -3,4 +3,26 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.alex.yygh.serviceorder.mapper.OrderInfoMapper">
 
+    <select id="selectOrderCount" resultType="com.alex.yygh.vo.order.OrderCountVo">
+        select reserve_date as reserveDate,count(*) as count
+        from order_info
+        <where>
+            <if test="vo.hosname!=null and vo.hosname!=''">
+                and hosname like CONCAT('%',#{vo.hosname},'%')
+            </if>
+
+            <if  test="vo.reserveDateBegin !=null and vo.reserveDateBegin !=''">
+                and reserve_date &gt;=#{vo.reserveDateBegin}
+            </if>
+            <if test="vo.reserveDateEnd != null and vo.reserveDateEnd != ''">
+                and reserve_date &lt;= #{vo.reserveDateEnd}
+            </if>
+            and is_deleted = 0
+            group by reserve_date
+            order by reserve_date
+
+        </where>
+
+
+    </select>
 </mapper>

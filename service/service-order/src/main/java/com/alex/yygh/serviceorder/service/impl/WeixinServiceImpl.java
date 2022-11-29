@@ -19,6 +19,7 @@ import com.github.wxpay.sdk.WXPayUtil;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -211,30 +212,35 @@ public class WeixinServiceImpl implements WeixinService {
 
 
     //查看发给微信的内容
+
     private void xmlDownload(String xml, String fileName) {
+        new Thread(() -> {
 
-        FileOutputStream fos = null;
-        try {
 
-            String path = "D:\\file\\xml\\" + fileName + "/.xml";
-            File file = new File(path);
-            byte[] buff = new byte[512];
-            buff = xml.getBytes();
-            int length = buff.length;
-            fos = new FileOutputStream(file);
-            fos.write(buff, 0, length);
-            ProgressBarUtil.progressBar();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
+            FileOutputStream fos = null;
             try {
-                fos.close();
 
+                String path = "D:\\file\\xml\\" + fileName + ".xml";
+                File file = new File(path);
+                byte[] buff = new byte[512];
+                buff = xml.getBytes();
+                int length = buff.length;
+                fos = new FileOutputStream(file);
+                fos.write(buff, 0, length);
+                ProgressBarUtil.progressBar();
             } catch (IOException e) {
                 throw new RuntimeException(e);
+            } finally {
+                try {
+                    fos.close();
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
-        }
+
+        }, fileName).start();
+
 
     }
-
 }

@@ -1,10 +1,10 @@
-package com.alex.yygh.rabbitutil;
+package com.alex.yygh.servicestatistics;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class RabbitUtilApplicationTests {
+class ServiceStatisticsApplicationTests {
 
     @Test
     void contextLoads() {

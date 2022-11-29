@@ -2,6 +2,7 @@ package com.alex.yygh.serviceorder.service;
 
 import com.alex.yygh.model.hosp.Schedule;
 import com.alex.yygh.model.order.OrderInfo;
+import com.alex.yygh.vo.order.OrderCountQueryVo;
 import com.alex.yygh.vo.order.OrderQueryVo;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -42,5 +43,18 @@ public interface OrderInfoService extends IService<OrderInfo> {
      * 取消订单
      */
     Boolean cancelOrder(Long orderId);
+
+
+    /**
+     * 就医提醒
+     */
+
+    void patientTips();
+
+
+    /**
+     * 订单统计
+     */
+    Map<String, Object> getCountMap(OrderCountQueryVo orderCountQueryVo);
 
 }

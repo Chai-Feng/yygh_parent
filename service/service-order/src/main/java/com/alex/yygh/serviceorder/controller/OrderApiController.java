@@ -5,6 +5,7 @@ import com.alex.yygh.common.utils.AuthContextHolder;
 import com.alex.yygh.enums.OrderStatusEnum;
 import com.alex.yygh.model.order.OrderInfo;
 import com.alex.yygh.serviceorder.service.OrderInfoService;
+import com.alex.yygh.vo.order.OrderCountQueryVo;
 import com.alex.yygh.vo.order.OrderQueryVo;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**
  * @Title:
@@ -71,5 +73,26 @@ public class OrderApiController {
         return Result.ok(orderInfo);
     }
 
+
+    @ApiOperation(value = "取消预约")
+    @GetMapping("auth/cancelOrder/{orderId}")
+    public Result cancelOrder11(
+            @ApiParam(name = "orderId", value = "订单id", required = true)
+            @PathVariable("orderId") Long orderId) {
+
+        System.out.println("OrderInfoController cancelOrder11 "+orderId+" "+orderId.getClass().getName());
+
+        Boolean isCancel = orderInfoService.cancelOrder(orderId);
+        return Result.ok(isCancel);
+    }
+
+
+
+    @ApiOperation(value = "获取订单统计数据")
+    @PostMapping("inner/getCountMap")
+    public Map<String, Object> getCountMap(@RequestBody OrderCountQueryVo orderCountQueryVo) {
+        System.out.println("远程调用 order getCountMap"+orderCountQueryVo);
+        return orderInfoService.getCountMap(orderCountQueryVo);
+    }
 
 }

@@ -1,0 +1,20 @@
+server:
+  port: 8208
+spring:
+  application:
+    name: service-statistics
+
+
+  profiles:
+    active: dev
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.2.17:8848
+
+
+ribbon:
+  ReadTimeout:  60000
+  ConnectTime:  60000
+
